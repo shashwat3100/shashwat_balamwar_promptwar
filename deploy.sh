@@ -7,6 +7,8 @@ set -e
 PROJECT_ID=${GCP_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}
 SERVICE_NAME="blind-spot"
 REGION=${GCP_REGION:-"us-central1"}
+GEMINI_SECRET_NAME=${GEMINI_SECRET_NAME:-"gemini-api-key"}
+GEMINI_SECRET_VERSION=${GEMINI_SECRET_VERSION:-"1"}
 
 if [ -z "$PROJECT_ID" ]; then
   echo "Error: GCP_PROJECT_ID is not set and no active gcloud project found."
@@ -34,7 +36,8 @@ gcloud run deploy "${SERVICE_NAME}" \
   --region "${REGION}" \
   --allow-unauthenticated \
   --port 8080 \
-  --set-env-vars NODE_ENV=production
+  --set-env-vars NODE_ENV=production \
+  --set-secrets "GEMINI_API_KEY=${GEMINI_SECRET_NAME}:${GEMINI_SECRET_VERSION}"
 
 echo "=================================================="
 echo "Deployment Complete!"

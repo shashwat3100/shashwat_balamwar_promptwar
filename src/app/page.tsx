@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ArrowRight, Brain, EyeOff, Target, CheckCircle2, ShieldAlert } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import HistoryModal from "@/components/HistoryModal";
@@ -86,6 +86,11 @@ export default function Home() {
     setStage("workspace");
   };
 
+  const handleWorkspaceModelChange = useCallback((updatedModel: StructuredDecisionModel) => {
+    setModel(updatedModel);
+    saveDecisionToHistory(updatedModel);
+  }, []);
+
   return (
     <>
       <Navbar
@@ -116,6 +121,7 @@ export default function Home() {
           <DecisionWorkspace
             initialModel={model}
             onReset={handleResetToCanvas}
+            onModelChange={handleWorkspaceModelChange}
           />
         )}
 

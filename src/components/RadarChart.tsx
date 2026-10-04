@@ -122,10 +122,19 @@ export default function RadarChart({
             return (
               <g
                 key={`pt-${i}`}
+                role="button"
+                tabIndex={0}
+                aria-label={`${dim.category}: ${dim.statusLabel}`}
                 style={{ cursor: "pointer" }}
                 onMouseEnter={() => setHoveredIndex(i)}
                 onMouseLeave={() => setHoveredIndex(null)}
                 onClick={() => onSelectDimension && onSelectDimension(dim.category)}
+                onKeyDown={event => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onSelectDimension?.(dim.category);
+                  }
+                }}
               >
                 <circle
                   cx={p.x}
@@ -171,8 +180,17 @@ export default function RadarChart({
                 fontWeight={isSelected ? 600 : 500}
                 style={{ cursor: "pointer", transition: "all 0.2s ease", userSelect: "none" }}
                 onClick={() => onSelectDimension && onSelectDimension(dim.category)}
+                role="button"
+                tabIndex={0}
+                aria-label={`${dim.category}: ${dim.statusLabel}`}
                 onMouseEnter={() => setHoveredIndex(i)}
                 onMouseLeave={() => setHoveredIndex(null)}
+                onKeyDown={event => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onSelectDimension?.(dim.category);
+                  }
+                }}
               >
                 {dim.category}
               </text>
@@ -224,7 +242,7 @@ export default function RadarChart({
                 fontWeight: 600
               }}
             >
-              {activeDim.statusLabel} ({activeDim.score}%)
+              {activeDim.statusLabel}
             </span>
           </div>
           <p style={{ color: "var(--muted)", margin: 0, lineHeight: 1.4 }}>

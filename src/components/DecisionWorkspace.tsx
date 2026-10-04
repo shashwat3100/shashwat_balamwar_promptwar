@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft,
   Target,
@@ -25,11 +25,12 @@ import { StructuredDecisionModel } from "@/types/decision";
 interface DecisionWorkspaceProps {
   initialModel: StructuredDecisionModel;
   onReset: () => void;
+  onModelChange: (model: StructuredDecisionModel) => void;
 }
 
 type ActiveLens = "all" | "assumptions" | "evidence" | "alternatives" | "stakeholders" | "consequences" | "pre_mortem" | "blind_spots";
 
-export default function DecisionWorkspace({ initialModel, onReset }: DecisionWorkspaceProps) {
+export default function DecisionWorkspace({ initialModel, onReset, onModelChange }: DecisionWorkspaceProps) {
   const [model, setModel] = useState<StructuredDecisionModel>(initialModel);
   const [activeLens, setActiveLens] = useState<ActiveLens>("all");
   const [selectedRadarCategory, setSelectedRadarCategory] = useState<string | null>(null);
@@ -39,6 +40,10 @@ export default function DecisionWorkspace({ initialModel, onReset }: DecisionWor
   const [currentAnswer, setCurrentAnswer] = useState("");
   const [isSubmittingAnswer, setIsSubmittingAnswer] = useState(false);
   const [answerError, setAnswerError] = useState<string | null>(null);
+
+  useEffect(() => {
+    onModelChange(model);
+  }, [model, onModelChange]);
 
   const activeQuestion = model.questions[model.currentQuestionIndex] || model.questions[model.questions.length - 1];
 
@@ -615,12 +620,13 @@ export default function DecisionWorkspace({ initialModel, onReset }: DecisionWor
                 </p>
 
                 {answerError && (
-                  <div style={{ color: "var(--danger)", fontSize: "0.85rem", marginBottom: "0.75rem" }}>
+                  <div role="alert" style={{ color: "var(--danger)", fontSize: "0.85rem", marginBottom: "0.75rem" }}>
                     {answerError}
                   </div>
                 )}
 
                 <textarea
+                  aria-label="Your response to the current question"
                   value={currentAnswer}
                   onChange={e => setCurrentAnswer(e.target.value)}
                   placeholder="Answer thoughtfully to update your thinking radar..."

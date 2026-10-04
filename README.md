@@ -4,7 +4,7 @@
 > *PromptWars 2026 Submission*
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.3-black.svg)](https://nextjs.org/)
-[![Google Gemini](https://img.shields.io/badge/Gemini-2.5_Flash-blue.svg)](https://ai.google.dev/)
+[![Google Gemini](https://img.shields.io/badge/Gemini-3.8_Flash-blue.svg)](https://ai.google.dev/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
 [![Google Cloud Run](https://img.shields.io/badge/Google_Cloud_Run-Deployable-4285F4.svg)](https://cloud.google.com/run)
 
@@ -88,16 +88,17 @@ YOU DECIDE (Human Sovereignty)
 - **Language:** TypeScript 7.0 (Strict mode, fully typed domain models)
 - **Styling:** Custom Vanilla CSS Design System (High-contrast dark mode, zero bloated utility classes)
 - **Icons & Motion:** Lucide Icons & Framer Motion
-- **AI Engine:** Google Gemini SDK (`@google/genai`) targeting `gemini-2.5-flash` with resilient heuristic fallback
+- **AI Engine:** Google Gemini SDK (`@google/genai`) targeting `gemini-3.8-flash` with a limited heuristic fallback
 - **Containerization:** Multi-stage Docker build optimized for Google Cloud Run (image < 150MB)
 
 ---
 
 ## 5. Security & Privacy
-- **Zero Exposed Secrets:** `GEMINI_API_KEY` is strictly accessed server-side in API routes.
+- **Server-side API Key:** `GEMINI_API_KEY` is read only by server routes. Never add a real key to source control or a client-side environment variable.
 - **Input Sanitization & Validation:** All user inputs are strictly validated before submission.
-- **Prompt Injection Defense:** Strict system boundaries prevent user input from overriding AI instructions.
-- **Offline / Fallback Resilience:** If an API key is omitted or rate-limited, the application automatically activates its offline heuristic reasoning engine, guaranteeing 100% uptime and zero crashes during evaluation.
+- **Prompt Handling:** User fields are encoded as untrusted JSON data and model output is shape-checked. This is defense-in-depth; prompt injection cannot be guaranteed impossible.
+- **Fallback Resilience:** If Gemini is unavailable or its response is malformed, the app uses a limited local reasoning fallback. It does not guarantee availability of the external provider.
+- **Demo Profile:** Sign-in is a local demo profile only; no account, password verification, OAuth, or server-side user data exists. Do not enter a real password. Decision history is stored in the current browser.
 
 ---
 
@@ -141,6 +142,10 @@ chmod +x deploy.sh
 ./deploy.sh
 ```
 
+### Configure Gemini for Cloud Run
+
+Create a Secret Manager secret named `gemini-api-key` (or set `GEMINI_SECRET_NAME`) containing the Gemini API key, with version `1` enabled. Grant the Cloud Run service identity permission to access that secret. The deploy script maps the pinned secret version to `GEMINI_API_KEY` at runtime; the key is not baked into the image or passed as a command-line value.
+
 ### Manual Cloud Run Deploy:
 ```bash
 # 1. Build and push image to Google Container Registry / Artifact Registry
@@ -153,7 +158,8 @@ gcloud run deploy blind-spot \
   --region us-central1 \
   --allow-unauthenticated \
   --port 8080 \
-  --set-env-vars NODE_ENV=production,GEMINI_API_KEY="your-api-key"
+  --set-env-vars NODE_ENV=production \
+  --set-secrets GEMINI_API_KEY=gemini-api-key:1
 ```
 
 A health check endpoint is available at `/api/health` for Cloud Run liveness probes.
@@ -162,14 +168,7 @@ A health check endpoint is available at `/api/health` for Cloud Run liveness pro
 
 ## 8. Testing & Verification
 
-The application has been verified end-to-end via an autonomous browser subagent covering the full user journey:
-- [x] Landing page render & PromptWars badge
-- [x] Preset scenario selection (Internship vs College)
-- [x] AI reasoning engine execution & taxonomy parsing
-- [x] Blind Spot Radar interactive rendering & category hover
-- [x] Adaptive questioning answer submission & real-time radar recalibration
-- [x] Decision Brief generation, Markdown export, and reflection recording
-- [x] Verification of the "YOU DECIDE" sovereign decision principle
+There is no automated test suite configured yet. Run `npm run build` for a production build and `npx tsc --noEmit` for a standalone type check. The `lint` script requires ESLint packages, which must be present in the install before it can run.
 
 ---
 

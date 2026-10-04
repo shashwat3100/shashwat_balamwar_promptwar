@@ -402,10 +402,11 @@ The AI thinking partner never makes the decision for you.
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "1.5rem" }}>
-            <label style={{ fontSize: "0.95rem", fontWeight: 500 }}>
+            <label htmlFor="reflection-note" style={{ fontSize: "0.95rem", fontWeight: 500 }}>
               What changed in your thinking? (Key realization or shift)
             </label>
             <textarea
+              id="reflection-note"
               value={reflectionNote}
               onChange={e => setReflectionNote(e.target.value)}
               placeholder="e.g. I realized I was over-optimistic about the schedule, so I will propose a 3-month review clause before committing to a 6-month block..."

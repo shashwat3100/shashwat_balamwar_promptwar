@@ -72,6 +72,11 @@ input:focus, textarea:focus, select:focus {
   box-shadow: 0 0 0 2px rgba(78, 131, 255, 0.2);
 }
 
+button:focus-visible, a:focus-visible, [role="button"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
 /* Base Layout Classes */
 .container {
   max-width: 1200px;
