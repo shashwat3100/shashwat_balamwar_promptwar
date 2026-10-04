@@ -1,15 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Brain, Clock, PlusCircle, LayoutDashboard } from "lucide-react";
+import { Clock, PlusCircle, LayoutDashboard, LogIn, LogOut, UserCheck } from "lucide-react";
 import { getStoredHistory } from "@/lib/storage";
+
+interface UserProfile {
+  name: string;
+  email: string;
+  provider: string;
+}
 
 interface NavbarProps {
   onGoHome: () => void;
   onGoWorkspace: () => void;
   onOpenHistory: () => void;
   onNewDecision: () => void;
+  onOpenAuth: () => void;
   hasActiveDecision: boolean;
+  user: UserProfile | null;
+  onSignOut: () => void;
 }
 
 export default function Navbar({
@@ -17,7 +26,10 @@ export default function Navbar({
   onGoWorkspace,
   onOpenHistory,
   onNewDecision,
-  hasActiveDecision
+  onOpenAuth,
+  hasActiveDecision,
+  user,
+  onSignOut
 }: NavbarProps) {
   const [historyCount, setHistoryCount] = useState(0);
 
@@ -57,7 +69,7 @@ export default function Navbar({
         </button>
 
         {/* Navigation Items */}
-        <nav style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <nav style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
           
           {/* Workspace Button */}
           <button
@@ -137,7 +149,7 @@ export default function Navbar({
               fontSize: "0.85rem",
               fontWeight: 600,
               cursor: "pointer",
-              padding: "0.45rem 0.9rem",
+              padding: "0.45rem 0.85rem",
               borderRadius: "var(--radius-md)",
               transition: "all 0.2s ease"
             }}
@@ -153,6 +165,78 @@ export default function Navbar({
             <PlusCircle size={15} color="var(--primary)" />
             <span>New Decision</span>
           </button>
+
+          {/* Auth Button or User Profile */}
+          {user ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginLeft: "0.5rem", paddingLeft: "0.75rem", borderLeft: "1px solid var(--border)" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.45rem",
+                  background: "rgba(78, 131, 255, 0.1)",
+                  border: "1px solid rgba(78, 131, 255, 0.25)",
+                  borderRadius: "var(--radius-xl)",
+                  padding: "0.3rem 0.75rem",
+                  fontSize: "0.85rem",
+                  color: "#ffffff"
+                }}
+              >
+                <div style={{ width: 20, height: 20, borderRadius: "50%", background: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 700 }}>
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <span style={{ maxWidth: "110px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {user.name}
+                </span>
+              </div>
+
+              <button
+                onClick={onSignOut}
+                title="Sign out"
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "var(--muted)",
+                  cursor: "pointer",
+                  padding: "0.35rem",
+                  display: "flex",
+                  alignItems: "center"
+                }}
+                onMouseEnter={e => (e.currentTarget.style.color = "var(--danger)")}
+                onMouseLeave={e => (e.currentTarget.style.color = "var(--muted)")}
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={onOpenAuth}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.45rem",
+                background: "rgba(78, 131, 255, 0.15)",
+                border: "1px solid var(--primary)",
+                color: "#ffffff",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                padding: "0.45rem 1rem",
+                borderRadius: "var(--radius-md)",
+                transition: "all 0.2s ease",
+                marginLeft: "0.5rem"
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = "var(--primary)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = "rgba(78, 131, 255, 0.15)";
+              }}
+            >
+              <LogIn size={15} />
+              <span>Sign In</span>
+            </button>
+          )}
 
         </nav>
 

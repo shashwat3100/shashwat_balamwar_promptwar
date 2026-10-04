@@ -4,23 +4,55 @@ import { useState, useEffect } from "react";
 import { ArrowRight, Brain, EyeOff, Target, CheckCircle2, ShieldAlert } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import HistoryModal from "@/components/HistoryModal";
+import AuthModal from "@/components/AuthModal";
 import DecisionCanvas from "@/components/DecisionCanvas";
 import DecisionWorkspace from "@/components/DecisionWorkspace";
 import { StructuredDecisionModel } from "@/types/decision";
 import { saveDecisionToHistory, getActiveSession } from "@/lib/storage";
 
+interface UserProfile {
+  name: string;
+  email: string;
+  provider: string;
+}
+
 export default function Home() {
   const [stage, setStage] = useState<"landing" | "canvas" | "workspace">("landing");
   const [model, setModel] = useState<StructuredDecisionModel | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [user, setUser] = useState<UserProfile | null>(null);
 
-  // Restore active session on mount if available
+  // Restore active session and user profile on mount
   useEffect(() => {
     const saved = getActiveSession();
     if (saved) {
       setModel(saved);
     }
+
+    try {
+      const savedUser = localStorage.getItem("blind_spot_user_profile");
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+      }
+    } catch (e) {
+      console.error("Failed to load user profile:", e);
+    }
   }, []);
+
+  const handleLoginSuccess = (newUser: UserProfile) => {
+    setUser(newUser);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("blind_spot_user_profile", JSON.stringify(newUser));
+    }
+  };
+
+  const handleSignOut = () => {
+    setUser(null);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("blind_spot_user_profile");
+    }
+  };
 
   const handleStart = () => {
     setStage(model ? "workspace" : "canvas");
@@ -61,13 +93,22 @@ export default function Home() {
         onGoWorkspace={handleGoWorkspace}
         onOpenHistory={() => setIsHistoryOpen(true)}
         onNewDecision={handleNewDecision}
+        onOpenAuth={() => setIsAuthOpen(true)}
         hasActiveDecision={!!model}
+        user={user}
+        onSignOut={handleSignOut}
       />
 
       <HistoryModal
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
         onResumeDecision={handleResumeDecision}
+      />
+
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
       />
 
       <div style={{ paddingTop: "2.5rem" }}>
